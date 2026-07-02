@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laudo Cautelar | iReport</title>
+    <meta name="description" content="Relatório técnico de auditoria física de hardware para dispositivos iOS gerado via iReport USB local.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="laudo-page">
+    <!-- Background decorativo sutil -->
+    <div class="background-decor">
+        <div class="decor-glow"></div>
+    </div>
+
+    <!-- Barra de Navegação Superior (Apenas Ações Técnicas) -->
+    <nav class="laudo-navbar">
+        <div class="navbar-brand">
+            <span class="logo-icon">🛡️</span>
+            <div class="logo-text">iReport<span>.app</span></div>
+            <span class="badge-tag">Diagnostics</span>
+        </div>
+        <div class="navbar-actions">
+            <button class="btn-secondary" id="btn-share">
+                <span class="icon">🔗</span> Compartilhar
+            </button>
+            <button class="btn-primary" id="btn-print">
+                <span class="icon">🖨️</span> Imprimir / PDF
+            </button>
+        </div>
+    </nav>
+
+    <!-- Seleção de Abas Principais (Top Navigation Switcher) -->
+    <div class="laudo-main-nav-bar">
+        <div class="container">
+            <div class="main-tabs-wrapper">
+                <button class="main-tab-btn active" data-target="tab-content-laudo" id="btn-tab-laudo">
+                    🛡️ Relatório de Diagnóstico USB
+                </button>
+                <button class="main-tab-btn" data-target="tab-content-historico" id="btn-tab-historico">
+                    ⏳ Histórico Permanente de Peças
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layout Principal -->
+    <main class="laudo-layout container">
+        
+        <!-- Painel de Notificação do Sistema (Estilo Apple Care/Diagnostics) -->
+        <div class="status-banner loading" id="laudo-banner-status">
+            <div class="banner-icon-box">
+                <span class="banner-icon" id="lbl-banner-icon">⏳</span>
+            </div>
+            <div class="banner-body">
+                <h4 id="txt-banner-title">Auditoria Física iReport</h4>
+                <p id="txt-banner-desc">Aguardando leitura do barramento de segurança física via conexão USB local...</p>
+            </div>
+            <div class="banner-badge-wrapper">
+                <span class="banner-badge" id="lbl-banner-badge">Processando</span>
+            </div>
+        </div>
+
+        <!-- Cabeçalho do Aparelho -->
+        <header class="laudo-status-hero" id="status-hero">
+            <h1 class="device-title" id="txt-device-title">Carregando Dispositivo...</h1>
+            <p class="status-subtitle">Laudo de vistoria cautelar e auditoria independente de originalidade de componentes de hardware.</p>
+        </header>
+
+        <!-- ABA 1: Relatório de Diagnóstico USB -->
+        <div class="main-tab-content active" id="tab-content-laudo">
+            <div class="laudo-grid">
+                <!-- Coluna Principal (Dados de Diagnóstico) -->
+                <section class="laudo-main-col">
+                    <!-- Informações Gerais do Dispositivo -->
+                    <div class="laudo-card">
+                        <div class="card-header">
+                            <h3>Identificação do Aparelho</h3>
+                            <span class="cert-code" id="lbl-cert-id">LAUDO-ID: #------</span>
+                        </div>
+                        <div class="device-info-grid">
+                            <div class="info-item">
+                                <span class="info-lbl">Modelo Técnico</span>
+                                <span class="info-val" id="val-device-type">---</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-lbl">IMEI Principal</span>
+                                <span class="info-val font-mono" id="val-device-imei">---</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-lbl">Serial da Placa (MLB)</span>
+                                <span class="info-val font-mono" id="val-device-mlb">---</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-lbl">Sistema Operacional</span>
+                                <span class="info-val" id="val-device-ios">---</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detalhes do Hardware e Componentes -->
+                    <div class="laudo-card tabs-card">
+                        <div class="tabs-nav">
+                            <button class="tab-trigger active" data-target="tab-bateria" id="nav-tab-bateria">
+                                🔋 Bateria
+                            </button>
+                            <button class="tab-trigger" data-target="tab-tela" id="nav-tab-tela">
+                                📱 Tela / Painel
+                            </button>
+                            <button class="tab-trigger" data-target="tab-seguranca" id="nav-tab-seguranca">
+                                🔒 iCloud & Bloqueios
+                            </button>
+                        </div>
+
+                        <div class="tabs-content">
+                            <!-- Aba Bateria -->
+                            <div class="tab-pane active" id="tab-bateria">
+                                <div class="battery-split">
+                                    <div class="battery-chart-box">
+                                        <div class="svg-chart-container">
+                                            <svg viewBox="0 0 36 36" class="circular-chart">
+                                                <path class="circle-bg"
+                                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                                />
+                                                <path class="circle-progress" id="battery-progress-path"
+                                                    stroke-dasharray="0, 100"
+                                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                                />
+                                            </svg>
+                                            <div class="chart-text">
+                                                <span class="chart-percent" id="lbl-battery-health">--%</span>
+                                                <span class="chart-label">Saúde Química</span>
+                                            </div>
+                                        </div>
+                                        <div class="originality-badge" id="lbl-battery-originality">
+                                            Carregando...
+                                        </div>
+                                    </div>
+                                    <div class="battery-metrics">
+                                        <div class="metric-row">
+                                            <span class="metric-lbl">Ciclos Físicos Reais</span>
+                                            <span class="metric-val" id="lbl-battery-cycles">---</span>
+                                        </div>
+                                        <div class="metric-row">
+                                            <span class="metric-lbl">Capacidade de Fábrica</span>
+                                            <span class="metric-val" id="lbl-battery-design">--- mAh</span>
+                                        </div>
+                                        <div class="metric-row">
+                                            <span class="metric-lbl">Retenção Atual Máxima</span>
+                                            <span class="metric-val" id="lbl-battery-current">--- mAh</span>
+                                        </div>
+                                        <div class="metric-row">
+                                            <span class="metric-lbl">Nº de Série do Chip</span>
+                                            <span class="metric-val font-mono" id="lbl-battery-serial">---</span>
+                                        </div>
+                                        <div class="metric-helper">
+                                            * Leitura efetuada diretamente via barramento I2C no circuito integrado de segurança da bateria, imune a resets de software ou placas reprogramadoras chinesas.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aba Tela -->
+                            <div class="tab-pane" id="tab-tela">
+                                <div class="diagnostics-list">
+                                    <div class="diag-item status-ok">
+                                        <div class="diag-meta">
+                                            <h4>Assinatura do Painel LCD/OLED</h4>
+                                            <p>Código serial gravado na tela confere com o barramento do processador.</p>
+                                        </div>
+                                        <div class="diag-status">Original Apple</div>
+                                    </div>
+                                    <div class="diag-item status-ok">
+                                        <div class="diag-meta">
+                                            <h4>Calibração True Tone</h4>
+                                            <p>Chip do sensor de luz ambiente calibrado e comunicando normalmente.</p>
+                                        </div>
+                                        <div class="diag-status">Ativo / Calibrado</div>
+                                    </div>
+                                    <div class="diag-item status-ok">
+                                        <div class="diag-meta">
+                                            <h4>3D Touch / Haptic Touch</h4>
+                                            <p>Painel capacitivo respondendo perfeitamente nos eixos de pressão.</p>
+                                        </div>
+                                        <div class="diag-status">Operacional</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aba iCloud -->
+                            <div class="tab-pane" id="tab-seguranca">
+                                <div class="diagnostics-list">
+                                    <div class="diag-item" id="card-diag-icloud">
+                                        <div class="diag-meta">
+                                            <h4>Status do Buscar iPhone (iCloud)</h4>
+                                            <p>Vínculo de conta Apple ID para bloqueio remoto contra roubos.</p>
+                                        </div>
+                                        <div class="diag-status" id="lbl-diag-icloud">---</div>
+                                    </div>
+                                    <div class="diag-item status-ok">
+                                        <div class="diag-meta">
+                                            <h4>Bloqueio Corporativo (MDM)</h4>
+                                            <p>Restrições de gerenciamento empresarial remoto de perfil de segurança.</p>
+                                        </div>
+                                        <div class="diag-status">Sem Restrições</div>
+                                    </div>
+                                    <div class="diag-item status-ok">
+                                        <div class="diag-meta">
+                                            <h4>Status de Operadora (SIM Lock)</h4>
+                                            <p>Bloqueio regional ou contratual de rede para cartões SIM.</p>
+                                        </div>
+                                        <div class="diag-status">Desbloqueado</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Coluna Lateral (QR Code e Metadados) -->
+                <aside class="laudo-sidebar">
+                    <!-- Card do Selo -->
+                    <div class="laudo-card verification-card text-center">
+                        <div class="badge-certified">Selo de Auditoria</div>
+                        <div class="qr-wrapper">
+                            <img id="img-qr-code" src="https://chart.googleapis.com/chart?cht=qr&chs=160x160&chl=https://ireport.app" alt="QR Code do Laudo" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22160%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%2318181b%22/><path d=%22M10 10h30v30H10zm5 5h20v20H15zm5 5h10v10H20zm40-10h30v30H60zm5 5h20v20H65zm5 5h10v10H70zM10 60h30v30H10zm5 5h20v20H15zm5 5h10v10H20zm40 0h10v10H50zm10 10h10v10H60zm10-10h10v20H70zm10 10h10v10H80zm-10-20h20v10H70z%22 fill=%22%23a1a1aa%22/></svg>';">
+                            <div class="qr-overlay-logo">🛡️</div>
+                        </div>
+                        <p class="qr-desc">Escaneie o QR Code acima com outro aparelho para validar este laudo online de forma pública e transparente.</p>
+                        <div class="hash-box">
+                            <span class="hash-label">ASSINATURA DE CRIPTOGRAFIA (SHA-256)</span>
+                            <span class="hash-val" id="lbl-crypt-hash">---</span>
+                        </div>
+                    </div>
+
+                    <!-- Card da Loja -->
+                    <div class="laudo-card store-card">
+                        <h4>Loja Avaliadora</h4>
+                        <div class="store-profile">
+                            <div class="store-avatar">🏪</div>
+                            <div class="store-details">
+                                <span class="store-name" id="lbl-store-name">Loja Parceira Homologada</span>
+                                <span class="store-badge">Parceiro Certificado iReport</span>
+                            </div>
+                        </div>
+                        <p class="store-text">Esta vistoria foi efetuada localmente utilizando equipamentos e ferramentas homologadas pela iReport Brasil.</p>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        <!-- ABA 2: Histórico Permanente de Peças -->
+        <div class="main-tab-content hidden" id="tab-content-historico">
+            <div class="historico-layout">
+                <!-- Tabela Comparativa de Componentes -->
+                <div class="laudo-card">
+                    <div class="card-header">
+                        <h3>Auditoria de Integridade de Componentes</h3>
+                        <span class="cert-code" id="lbl-historico-imei-code">IMEI: ---</span>
+                    </div>
+                    
+                    <p class="section-desc">Comparação em tempo real entre as assinaturas de hardware registradas no banco permanente (1ª Varredura) contra as assinaturas lidas via barramento USB hoje.</p>
+                    
+                    <div class="comparative-table-container">
+                        <table class="comparative-table">
+                            <thead>
+                                <tr>
+                                    <th>Componente Auditado</th>
+                                    <th>Assinatura de Fábrica (1ª Varredura)</th>
+                                    <th>Assinatura Atual (USB)</th>
+                                    <th>Integridade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr id="row-mlb-check">
+                                    <td class="td-module">Placa-Mãe (MLB Serial)</td>
+                                    <td class="font-mono" id="val-mlb-original">---</td>
+                                    <td class="font-mono" id="val-mlb-current">---</td>
+                                    <td><span class="status-pill green" id="badge-mlb-status">Original</span></td>
+                                </tr>
+                                <tr id="row-battery-check">
+                                    <td class="td-module">Bateria (Serial do Chip)</td>
+                                    <td class="font-mono" id="val-battery-original">---</td>
+                                    <td class="font-mono" id="val-battery-current">---</td>
+                                    <td><span class="status-pill" id="badge-battery-status">Verificando...</span></td>
+                                </tr>
+                                <tr id="row-screen-check">
+                                    <td class="td-module">Tela (IC Controller)</td>
+                                    <td class="font-mono" id="val-screen-original">LCM-T1550918FAG02B11</td>
+                                    <td class="font-mono" id="val-screen-current">LCM-T1550918FAG02B11</td>
+                                    <td><span class="status-pill green" id="badge-screen-status">Original</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="table-helper">* Caso as assinaturas de hardware divirjam (como uma troca de bateria ou tela sem recadastro na placa-mãe), o status de Integridade exibirá "Substituído" com sinalização de alerta.</p>
+                </div>
+
+                <!-- Histórico de Varreduras Realizadas -->
+                <div class="laudo-card">
+                    <div class="card-header">
+                        <h3>Linha do Tempo de Varreduras</h3>
+                        <span class="cert-code">Registro Ledger Permanente</span>
+                    </div>
+                    
+                    <div class="timeline" id="expanded-timeline">
+                        <div class="timeline-item current">
+                            <div class="timeline-date" id="lbl-expanded-timeline-now-date">Hoje</div>
+                            <div class="timeline-content">
+                                <h4>Varredura USB Homologada (iReport Local)</h4>
+                                <p id="lbl-expanded-timeline-now-desc">Aguardando dados de diagnóstico...</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-date" id="lbl-expanded-timeline-past-date">---</div>
+                            <div class="timeline-content">
+                                <h4>Registro Inicial de Fábrica (1ª Varredura)</h4>
+                                <p id="lbl-expanded-timeline-past-desc">Primeiro pareamento de assinaturas efetuado com sucesso.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Compartilhamento -->
+    <div class="modal-backdrop hidden" id="modal-share">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Compartilhar Laudo</h3>
+                <button class="btn-close" id="btn-close-share">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Use o link abaixo para enviar o laudo técnico diretamente para seus clientes via WhatsApp ou Redes Sociais:</p>
+                <div class="share-url-box">
+                    <input type="text" readonly id="input-share-url" value="http://ireport.app/laudo/87f29a">
+                    <button class="btn-primary" id="btn-copy-url">Copiar</button>
+                </div>
+                <div class="modal-divider">ou</div>
+                <div class="share-qr-preview">
+                    <img id="modal-qr-img" src="" alt="QR Code de Compartilhamento" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22130%22 height=%22130%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%2318181b%22/><path d=%22M10 10h30v30H10zm5 5h20v20H15zm5 5h10v10H20zm40-10h30v30H60zm5 5h20v20H65zm5 5h10v10H70zM10 60h30v30H10zm5 5h20v20H15zm5 5h10v10H20zm40 0h10v10H50zm10 10h10v10H60zm10-10h10v20H70zm10 10h10v10H80zm-10-20h20v10H70z%22 fill=%22%23a1a1aa%22/></svg>';">
+                    <p>O cliente pode escanear diretamente da sua tela ou da caixa impressa do celular.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="laudo-footer">
+        <p>&copy; 2026 iReport. Relatório em conformidade com as diretrizes de descarte eletrônico e auditorias de hardware independentes.</p>
+    </footer>
+
+    <script src="laudo_ativo.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
