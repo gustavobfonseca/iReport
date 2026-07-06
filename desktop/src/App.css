@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* Fonts */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* OS-INTEGRITY FORENSIC Color Palette */
+  --color-base: #0f151f; /* Deep dark blue-grey */
+  --color-surface: #1b2330; /* Lighter slate blue-grey card */
+  --color-elevated: #253042; /* Hover slate blue-grey */
+  
+  /* Visible Borders */
+  --color-border-subtle: #253042;
+  --color-border-md: rgba(37, 48, 66, 0.6);
+  --color-border-strong: #253042;
+
+  /* Typography */
+  --color-text-primary: #ffffff; /* White */
+  --color-text-secondary: #a0aec0; /* Slate-300ish */
+  --color-text-muted: #7d8c9f; /* Muted slate */
+
+  /* Status Colors */
+  --color-status-green: #34d399; /* Emerald 400 */
+  --color-status-orange: #fbbf24; /* Amber 400 */
+  --color-status-red: #f87171; /* Red 400 */
+
+  /* Status Backgrounds */
+  --color-bg-green: rgba(52, 211, 153, 0.08);
+  --color-bg-orange: rgba(251, 191, 36, 0.08);
+  --color-bg-red: rgba(248, 112, 112, 0.08);
+
+  /* Status Borders */
+  --color-border-green: rgba(52, 211, 153, 0.2);
+  --color-border-orange: rgba(251, 191, 36, 0.2);
+  --color-border-red: rgba(248, 112, 112, 0.2);
+}
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--color-base);
+    color: var(--color-text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.15);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.3);
+  }
+}
