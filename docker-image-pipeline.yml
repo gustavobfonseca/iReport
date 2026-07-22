@@ -1,0 +1,30 @@
+name: $(MAJOR).$(MINOR).$(Rev:r)
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - desktop/docker/*
+
+variables:
+  MAJOR: 1
+  MINOR: 1
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- checkout: self
+
+- task: Docker@2
+  displayName: 'Build and Push Docker Image'
+  inputs:
+    containerRegistry: 'dockerhub-connection'
+    repository: 'gustavobfonseca/ireport-builder'
+    command: 'buildAndPush'
+    Dockerfile: 'desktop/docker/Dockerfile'
+    tags: |
+      $(Build.BuildNumber)
+      latest

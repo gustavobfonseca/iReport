@@ -1,0 +1,134 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - desktop/docker/*
+
+resources:
+  pipelines:
+  - pipeline: docker_build
+    source: 'docker-image-pipeline'
+    trigger:
+      branches:
+        include:
+          - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+# Agente de build: imagem própria (Node + Rust fixo + libs nativas do Tauri).
+# Pinada por tag IMUTÁVEL — não use ':latest' aqui. Consumir 'latest' quebraria a
+# reprodutibilidade: um rebuild da imagem passaria a afetar silenciosamente todo
+# build futuro, incluindo a re-execução de commits antigos. Adotar uma imagem nova
+# é um passo consciente: bump da tag abaixo (as tags saem da docker-image-pipeline).
+container:
+  image: gustavobfonseca/ireport-builder:1.1.12
+
+variables:
+  WORKING_DIR: 'desktop'
+
+steps:
+- checkout: self
+
+# 1. VALIDA O AMBIENTE DO CONTAINER
+- script: |
+    node --version
+    npm --version
+    rustc --version
+    cargo --version
+  displayName: 'Validate Docker build environment'
+
+# 2. CACHE DO NPM
+- task: Cache@2
+  displayName: 'Cache npm dependencies'
+  inputs:
+    key: 'npm | "$(Agent.OS)" | $(WORKING_DIR)/package-lock.json'
+    restoreKeys: |
+      npm | "$(Agent.OS)"
+    path: $(Pipeline.Workspace)/.npm
+
+# 3. INSTALA DEPENDÊNCIAS
+- script: |
+    npm config set cache $(Pipeline.Workspace)/.npm
+    npm ci
+  workingDirectory: '$(WORKING_DIR)'
+  displayName: 'Install npm dependencies'
+
+# 4. LINT (FRONTEND)
+- script: npm run lint
+  workingDirectory: '$(WORKING_DIR)'
+  displayName: 'Run ESLint'
+
+# 5. TESTES UNITÁRIOS + COBERTURA (FRONTEND)
+- script: npm run test:coverage
+  workingDirectory: '$(WORKING_DIR)'
+  displayName: 'Run Unit Tests + Coverage'
+
+# 6. PUBLICA O RELATÓRIO DE COBERTURA
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish Coverage Report'
+  condition: succeededOrFailed()
+  inputs:
+    targetPath: '$(WORKING_DIR)/coverage'
+    artifact: 'coverage-report'
+
+# 7a. CACHE DO REGISTRY DO CARGO (crates baixados)
+#     Evita rebaixar o índice e os .crate a cada run. Invalida quando o
+#     Cargo.lock muda; senão, reaproveita o download entre commits.
+- task: Cache@2
+  displayName: 'Cache cargo registry'
+  inputs:
+    key: 'cargo-registry | "$(Agent.OS)" | $(WORKING_DIR)/src-tauri/Cargo.lock'
+    restoreKeys: |
+      cargo-registry | "$(Agent.OS)"
+    path: $(Pipeline.Workspace)/.cargo
+
+# 7b. CACHE DOS ARTEFATOS COMPILADOS (target/)
+#     Este é o ganho grande: as dependências do Tauri só recompilam quando o
+#     Cargo.lock muda. Nos demais commits, só o código do projeto é recompilado,
+#     derrubando o tempo do step de ~5min para ~1-2min.
+- task: Cache@2
+  displayName: 'Cache cargo target'
+  inputs:
+    key: 'cargo-target | "$(Agent.OS)" | $(WORKING_DIR)/src-tauri/Cargo.lock'
+    restoreKeys: |
+      cargo-target | "$(Agent.OS)"
+    path: $(WORKING_DIR)/src-tauri/target
+
+# 7c. TESTES E LINT DO BACKEND (RUST/TAURI)
+# Clippy primeiro: ele usa um driver de compilação diferente do `cargo test`.
+# Rodar nessa ordem deixa mais artefato de `target/` reaproveitável para o
+# test depois — na ordem invertida, cada um recompila boa parte da árvore
+# de dependências do zero.
+- script: |
+    cargo clippy --all-targets
+    cargo test --locked
+  workingDirectory: '$(WORKING_DIR)/src-tauri'
+  displayName: 'Run Rust Tests + Clippy'
+  # O CARGO_HOME da imagem (/usr/local/cargo) é criado como root no build da
+  # imagem; o container do pipeline roda como usuário não-root e não consegue
+  # escrever no registry cache. Redirecionamos para uma pasta gravável (que
+  # também é onde o cache do registry acima é restaurado).
+  env:
+    CARGO_HOME: $(Pipeline.Workspace)/.cargo
+
+# 8. BUILD FRONTEND
+- script: npm run build
+  workingDirectory: '$(WORKING_DIR)'
+  displayName: 'Build React + Vite'
+
+# 9. VALIDA BUILD
+- script: |
+    test -f dist/index.html
+    echo "Frontend build validated."
+  workingDirectory: '$(WORKING_DIR)'
+  displayName: 'Validate frontend artifacts'
+
+# 10. PUBLICA O FRONTEND
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish frontend build'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/$(WORKING_DIR)/dist'
+    ArtifactName: 'frontend-build'

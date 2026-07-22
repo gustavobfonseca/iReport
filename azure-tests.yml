@@ -1,0 +1,140 @@
+trigger: none
+
+parameters:
+- name: testSuite
+  displayName: Test Suite
+  type: string
+  default: Unit Tests
+  values:
+    - Unit Tests
+    - E2E — Smoke
+    - E2E — Sanity
+    - E2E — Regression (Full)
+    - Full Suite (Unit + E2E)
+
+pool:
+  vmImage: ubuntu-latest
+
+container:
+  # Pinada por tag imutável (ver racional em azure-pipelines.yml). Bump consciente
+  # ao adotar uma imagem nova — nunca ':latest'.
+  image: gustavobfonseca/ireport-builder:1.1.12
+  options: --pull always
+
+variables:
+  WORKING_DIR: desktop
+  # Criamos uma pasta explícita que o container do Docker consegue ler/gravar sem problemas de permissão
+  PLAYWRIGHT_BROWSERS_PATH: $(Pipeline.Workspace)/ms-playwright-browsers
+
+steps:
+
+- checkout: self
+
+- script: |
+    echo "=== Executando: ${{ parameters.testSuite }} ==="
+  displayName: 'Selected Test Suite'
+
+# 1. Cache do npm (Padrão para acelerar o npm ci)
+- task: Cache@2
+  displayName: 'Cache npm'
+  inputs:
+    key: 'npm | "$(Agent.OS)" | $(WORKING_DIR)/package-lock.json'
+    restoreKeys: |
+      npm | "$(Agent.OS)"
+    path: $(Pipeline.Workspace)/.npm
+
+# 2. O Nosso "Guarda-Volumes" Inteligente para os Navegadores do Playwright
+- task: Cache@2
+  displayName: 'Cache Playwright Browsers'
+  # Ajustado: Adicionado ${{ }} para o Azure DevOps injetar o valor do parâmetro na expressão
+  condition: and(succeeded(), or(startsWith('${{ parameters.testSuite }}', 'E2E'), eq('${{ parameters.testSuite }}', 'Full Suite (Unit + E2E)')))
+  inputs:
+    key: 'playwright | "$(Agent.OS)" | $(WORKING_DIR)/package-lock.json'
+    restoreKeys: |
+      playwright | "$(Agent.OS)"
+    path: $(PLAYWRIGHT_BROWSERS_PATH)
+
+# 3. Instalação Inteligente de Dependências
+- script: |
+    export PLAYWRIGHT_BROWSERS_PATH=$(PLAYWRIGHT_BROWSERS_PATH)
+    
+    npm config set cache $(Pipeline.Workspace)/.npm
+    npm ci
+
+    SUITE="${{ parameters.testSuite }}"
+    echo "A suite selecionada é: $SUITE"
+
+    if [[ "$SUITE" == *Smoke* ]] || [[ "$SUITE" == E2E* ]] || [ "$SUITE" = "Full Suite (Unit + E2E)" ]; then
+      # As libs de runtime do Chromium (libnspr4, libnss3, etc.) já vêm assadas
+      # na imagem gustavobfonseca/ireport-builder — o container roda como
+      # usuário não-root aqui e não conseguiria rodar apt-get install.
+      echo "Baixando binário do Chromium..."
+      npx playwright install chromium
+    fi
+  workingDirectory: $(WORKING_DIR)
+  displayName: 'Install dependencies'
+
+# 4. Execução dos Testes Selecionados
+- script: |
+    # Precisamos exportar a variável aqui também para o Playwright achar o Chromium na hora de rodar o teste
+    export PLAYWRIGHT_BROWSERS_PATH=$(PLAYWRIGHT_BROWSERS_PATH)
+
+    case "${{ parameters.testSuite }}" in
+
+      "Unit Tests")
+        echo "Running Unit Tests"
+        npm run lint
+        npm run format:check
+        npm run test:coverage
+        (cd src-tauri && cargo clippy --all-targets && cargo test --locked)
+        ;;
+
+      "E2E — Smoke")
+        echo "Running Smoke Tests"
+        npx playwright test --grep "@smoke"
+        ;;
+
+      "E2E — Sanity")
+        echo "Running Sanity Tests"
+        npx playwright test --grep "@sanity"
+        ;;
+
+      "E2E — Regression (Full)")
+        echo "Running Regression Tests"
+        npx playwright test --grep "@regression"
+        ;;
+
+      "Full Suite (Unit + E2E)")
+        echo "Running Full Suite"
+        npm run lint
+        npm run format:check
+        npm run test:coverage
+        (cd src-tauri && cargo clippy --all-targets && cargo test --locked)
+        npx playwright test --grep "@regression"
+        ;;
+
+    esac
+  workingDirectory: $(WORKING_DIR)
+  displayName: 'Execute Tests'
+  # CARGO_HOME da imagem (/usr/local/cargo) é root-only; o container roda como
+  # usuário não-root. Redireciona o cache do cargo para uma pasta gravável.
+  env:
+    CARGO_HOME: $(Pipeline.Workspace)/.cargo
+
+# 5. Publica o relatório do Playwright (Se houver testes E2E executados)
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish Playwright Report'
+  condition: succeededOrFailed()
+  inputs:
+    targetPath: '$(WORKING_DIR)/playwright-report'
+    artifact: 'playwright-report'
+    publishLocation: 'pipeline'
+
+# 6. Publica o relatório de cobertura (se houver testes unitários executados)
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish Coverage Report'
+  condition: succeededOrFailed()
+  inputs:
+    targetPath: '$(WORKING_DIR)/coverage'
+    artifact: 'coverage-report'
+    publishLocation: 'pipeline'
