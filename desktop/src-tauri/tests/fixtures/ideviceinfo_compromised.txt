@@ -1,0 +1,14 @@
+DeviceClass: iPhone
+DeviceName: iPhone de Testes
+ProductType: iPhone12,1
+ProductVersion: 14.2
+SerialNumber: G2NXM48FLX
+UniqueDeviceID: 00008030-0000000000000000
+ModelNumber: FXXXXLL/A
+ActivationState: MobileActivationError
+BasebandStatus: Unresponsive
+FusingStatus: Violation
+BrickState: true
+UnknownComponents: display, battery
+fm-activation-locked: YES
+fm-account-masked: YioqKioqQGdtYWlsLmNvbQ==

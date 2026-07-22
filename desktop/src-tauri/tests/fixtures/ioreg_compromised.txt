@@ -1,0 +1,4 @@
++-o AppleARMPMU  <class AppleARMPMU>
++-o IOHIDEventService  <class IOHIDEventService>
+| "sensor-name" = "Unknown"
++-o IOPlatformDevice  <class IOPlatformDevice>

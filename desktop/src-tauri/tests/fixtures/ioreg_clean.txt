@@ -1,0 +1,5 @@
++-o AppleARMPMU  <class AppleARMPMU>
++-o AppleBiometricSensor  <class AppleBiometricSensor>
+| "sensor-name" = "Pearl"
++-o AppleLightSensor  <class AppleLightSensor>
+| "sensor-type" = "ALS"

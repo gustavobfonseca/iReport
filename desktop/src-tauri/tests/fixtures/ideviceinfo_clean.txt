@@ -1,0 +1,14 @@
+DeviceClass: iPhone
+DeviceName: iPhone de Gustavo
+ProductType: iPhone14,2
+ProductVersion: 17.4.1
+SerialNumber: FK2T3XXXXX
+UniqueDeviceID: 00008110-000A2D6E3608801E
+ModelNumber: MXXX3
+ActivationState: Activated
+BasebandStatus: Operacional
+FusingStatus: 3
+BrickState: false
+UnknownComponents: Genuíno
+fm-activation-locked: false
+fm-account-masked: N/A
