@@ -1,0 +1,6 @@
+dist
+src-tauri
+playwright-report
+test-results
+coverage
+node_modules

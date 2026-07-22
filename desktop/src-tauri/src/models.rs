@@ -1,0 +1,56 @@
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct DeviceData {
+    pub connected: bool,
+    pub device_name: String,
+    pub product_type: String,
+    pub chassis_serial: String,
+    pub udid: String,
+    pub storage_capacity: String,
+    pub storage_used: String,
+    pub storage_free: String,
+    pub brick_state: bool,
+    pub icloud_locked: String,
+    pub icloud_account_masked: String,
+    pub fusing_status: String,
+    pub baseband_status: String,
+    pub unknown_components: String,
+    pub battery_health: u32,
+    pub battery_cycles: u32,
+    pub model_number: String,
+    pub activation_state: String,
+    pub biometric_status: String,
+    pub als_status: String,
+    pub bms_voltage_mv: u32,
+    pub bms_temperature_c: f32,
+    pub bms_instant_amperage: i32,
+}
+
+pub fn empty_device() -> DeviceData {
+    DeviceData {
+        connected: false,
+        device_name: "".into(),
+        product_type: "".into(),
+        chassis_serial: "".into(),
+        udid: "".into(),
+        storage_capacity: "".into(),
+        storage_used: "".into(),
+        storage_free: "".into(),
+        brick_state: false,
+        icloud_locked: "".into(),
+        icloud_account_masked: "".into(),
+        fusing_status: "".into(),
+        baseband_status: "".into(),
+        unknown_components: "".into(),
+        battery_health: 100,
+        battery_cycles: 0,
+        model_number: "".into(),
+        activation_state: "".into(),
+        biometric_status: "".into(),
+        als_status: "".into(),
+        bms_voltage_mv: 0,
+        bms_temperature_c: 0.0,
+        bms_instant_amperage: 0,
+    }
+}
